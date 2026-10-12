@@ -4,7 +4,7 @@
 .line { font-family:var(--display, var(--sans, system-ui, sans-serif)); font-size:84px; line-height:1.05; font-weight:700 } .sub { font-size:36px }
 .layer { position:absolute; inset:0 } .fig { position:absolute; left:0; top:0; overflow:visible }
 .art { position:absolute; inset:0; width:100%; height:100%; overflow:visible }
-.shaft { position:absolute; top:-260px; width:240px; height:1600px; transform-origin:50% 0; background:linear-gradient(color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%); filter:blur(22px) }
+.shaft { position:absolute; top:-260px; width:240px; height:1600px; transform-origin:50% 0; background:linear-gradient(color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%); -webkit-mask-image:linear-gradient(90deg, transparent, black 40%, black 60%, transparent); mask-image:linear-gradient(90deg, transparent, black 40%, black 60%, transparent) }
 .current { fill:color-mix(in srgb, var(--accent) 7%, transparent) }
 .mote { fill:color-mix(in srgb, var(--accent) 50%, transparent) }
 .silk-w { fill:color-mix(in srgb, var(--second) 90%, var(--accent)); stroke:color-mix(in srgb, var(--accent) 45%, transparent); stroke-width:1.5 }
