@@ -1,0 +1,75 @@
+{
+    "v": 1,
+    "stage": "final",
+    "look": "Silk and light: Translucent fabric ribbons and glowing particles, everything weightless and flowing. Tone: ethereal, romantic, breathless. Original characters: a pale figure in loose white robes and a long-haired rescuer in crimson.",
+    "palettes": [
+        [
+            "#061A33",
+            "#C8243A",
+            "#CFE3F5",
+            "#8FD3FF"
+        ],
+        [
+            "#0B1E1A",
+            "#2E9C83",
+            "#DCEBE6",
+            "#D9374A"
+        ],
+        [
+            "#170F24",
+            "#7B5CC4",
+            "#DCDDEA",
+            "#E0485A"
+        ]
+    ],
+    "theirs": 1,
+    "width": 1920,
+    "height": 1080,
+    "fps": 60,
+    "background": "#061A33",
+    "fonts": {
+        "display": {
+            "family": "Cormorant Garamond",
+            "or": "fraunces-display"
+        },
+        "sans": "manrope"
+    },
+    "scenes": [
+        {
+            "id": "sink",
+            "name": "Sinking",
+            "dur": 5,
+            "desc": "The white-robed figure drifts down through churning blue, robes billowing, eyes closing."
+        },
+        {
+            "id": "dive",
+            "name": "Crimson streak",
+            "dur": 5,
+            "desc": "A crimson streak cuts the dark, butterflies scatter, and the rescuer catches the sinking figure by the waist."
+        },
+        {
+            "id": "catch",
+            "name": "Held close",
+            "dur": 5,
+            "desc": "Close-up: eyes snap open as the rescuer pulls them flush, fierce and protective."
+        },
+        {
+            "id": "kiss",
+            "name": "The transfer",
+            "dur": 7,
+            "desc": "The rescuer leans in; silver-blue light blooms from the kiss and lights the water."
+        },
+        {
+            "id": "spiral",
+            "name": "Rising spiral",
+            "dur": 5,
+            "desc": "The camera circles the pair as bubbles and silver butterflies spiral up, pushing the dark away."
+        },
+        {
+            "id": "fade",
+            "name": "One butterfly",
+            "dur": 3,
+            "desc": "Hands rest on shoulders, cut to black, a single silver butterfly crosses the screen."
+        }
+    ]
+}
