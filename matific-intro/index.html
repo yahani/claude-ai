@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matific Intro Animations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f1ff;
+    --surface: #ffffff;
+    --ink: #24204a;
+    --muted: #5d5884;
+    --accent: #6c4cf5;
+    --accent-2: #ffb703;
+    --sky: #dff1ff;
+    --grass: #8fd16a;
+    --grass-dark: #6cb34a;
+    --table: #f2d7b4;
+    --cloud: #ffffff;
+    --trunk: #9b6a43;
+    --leaf: #57b65a;
+    --apple: #ef4f4f;
+    --block-a: #3d8bfd;
+    --block-b: #ff8a3d;
+    --good: #2fbf71;
+    --panel: #ffffff;
+    --grid: #e6e2f7;
+    --step-0: #b7a8ff;
+    --step-1: #9d89fb;
+    --step-2: #846bf7;
+    --step-3: #6c4cf5;
+    --step-4: #5432db;
+    --font: "Fredoka", ui-rounded, "Nunito", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15132b;
+      --surface: #201d3d;
+      --ink: #f2efff;
+      --muted: #b4aedb;
+      --sky: #233a5c;
+      --grass: #3f7a3a;
+      --grass-dark: #2f5f2b;
+      --table: #5a4632;
+      --cloud: #3b5578;
+      --panel: #2a2650;
+      --grid: #3a3566;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15132b;
+    --surface: #201d3d;
+    --ink: #f2efff;
+    --muted: #b4aedb;
+    --sky: #233a5c;
+    --grass: #3f7a3a;
+    --grass-dark: #2f5f2b;
+    --table: #5a4632;
+    --cloud: #3b5578;
+    --panel: #2a2650;
+    --grid: #3a3566;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .player {
+    width: 100%;
+    max-width: 960px;
+    background: var(--surface);
+    border-radius: 28px;
+    box-shadow: 0 20px 60px rgba(40, 20, 120, .15);
+    overflow: hidden;
+  }
+
+  /* Scenes are stacked in one grid cell so the tallest decides the height. */
+  .stage { display: grid; }
+  .scene {
+    grid-area: 1 / 1;
+    visibility: hidden;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .scene.on { visibility: visible; animation: sceneIn .45s ease-out both; }
+  .scene:not(.on) * { animation: none !important; }
+  .stage.paused .scene.on * { animation-play-state: paused !important; }
+  .scene svg, .outro { display: block; width: 100%; aspect-ratio: 16 / 9; }
+  .caption { padding: 18px 28px 6px; text-align: center; }
+  .caption h2 { margin: 0 0 4px; font-size: clamp(22px, 4vw, 32px); font-weight: 700; }
+  .caption p { margin: 0 auto; max-width: 560px; color: var(--muted); font-size: clamp(15px, 2.4vw, 18px); line-height: 1.4; }
+  .scene.on .caption h2 { animation: fadeUp .5s .2s both; }
+  .scene.on .caption p { animation: fadeUp .5s .4s both; }
+
+  /* SVG helpers: every animated element scales/rotates around its own centre. */
+  .a { transform-box: fill-box; transform-origin: center; }
+  .sky { fill: var(--sky); }
+  .grass { fill: var(--grass); }
+  .grass-dark { fill: var(--grass-dark); }
+  .cloud { fill: var(--cloud); }
+  .t { font-family: var(--font); fill: var(--ink); text-anchor: middle; }
+  .t-big { font-size: 56px; font-weight: 700; }
+  .t-mid { font-size: 30px; font-weight: 600; }
+  .t-sm { font-size: 16px; font-weight: 600; }
+  .t-white { fill: #fff; }
+
+  .c-body { fill: var(--accent); }
+  .c-belly { fill: #a996ff; }
+  .c-foot { fill: #4a2fc2; }
+  .c-pupil { fill: #24204a; }
+  .c-smile, .c-tuft { fill: none; stroke: #24204a; stroke-width: 3; stroke-linecap: round; }
+  .c-tuft { stroke: #4a2fc2; stroke-width: 4; }
+  .bob { animation: bob 1.4s ease-in-out infinite; }
+  .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4s infinite; }
+
+  /* Outro */
+  .outro {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; text-align: center; padding: 16px; flex: 1; aspect-ratio: auto; min-height: 0;
+    background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 65%);
+  }
+  .outro svg { width: clamp(70px, 14vw, 120px); height: auto; aspect-ratio: auto; }
+  .wordmark { margin: 0; font-size: clamp(44px, 11vw, 96px); font-weight: 700; color: var(--accent); letter-spacing: .01em; line-height: 1; }
+  .wordmark span { display: inline-block; }
+  .scene.on .wordmark span { animation: letterIn .6s cubic-bezier(.3, 1.6, .5, 1) both; }
+  .tagline { margin: 0; font-size: clamp(18px, 3.4vw, 26px); color: var(--ink); }
+  .scene.on .tagline { animation: fadeUp .6s 1.1s both; }
+  .pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 6px; }
+  .pill { padding: 6px 14px; border-radius: 999px; background: var(--bg); color: var(--muted); font-weight: 600; font-size: 15px; }
+  .scene.on .pill { animation: pop .5s both; }
+
+  /* Controls */
+  .controls { display: flex; align-items: center; gap: 12px; padding: 14px 20px 20px; }
+  .btn {
+    font: inherit; font-weight: 600; border: 0; cursor: pointer;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--bg); color: var(--ink);
+    display: grid; place-items: center; flex: none;
+  }
+  .btn:hover { background: color-mix(in srgb, var(--accent) 18%, var(--bg)); }
+  .btn:focus-visible, .dot:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn svg { width: 20px; height: 20px; fill: currentColor; }
+  .track { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .dots { display: flex; gap: 8px; justify-content: center; }
+  .dot { width: 12px; height: 12px; padding: 0; border-radius: 50%; border: 0; background: var(--grid); cursor: pointer; }
+  .dot[aria-current="true"] { background: var(--accent); }
+  .bar { height: 6px; border-radius: 3px; background: var(--grid); overflow: hidden; }
+  .bar > i { display: block; height: 100%; width: 0; background: var(--accent-2); }
+
+  @keyframes sceneIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes pop {
+    0% { opacity: 0; transform: scale(0); }
+    60% { opacity: 1; transform: scale(1.18); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes letterIn {
+    from { opacity: 0; transform: translateY(-60px) scale(.6); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes drop {
+    0% { opacity: 0; transform: translateY(-340px); }
+    10% { opacity: 1; }
+    60% { transform: translateY(0); }
+    76% { transform: translateY(-24px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes enterL { from { transform: translateX(-260px); } to { transform: none; } }
+  @keyframes jump {
+    0%, 100% { transform: none; }
+    40% { transform: translateY(-46px) rotate(-8deg); }
+    70% { transform: translateY(0) scale(1.08, .92); }
+  }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+  @keyframes drift { from { transform: translateX(-30px); } to { transform: translateX(40px); } }
+  @keyframes slideX { from { transform: translateX(0); } to { transform: translateX(var(--dx)); } }
+  @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  @keyframes draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+  @keyframes burst {
+    0% { opacity: 0; transform: translate(0, 0) scale(.2); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.1) rotate(90deg); }
+  }
+  @keyframes ripple { from { opacity: .9; transform: scale(.3); } to { opacity: 0; transform: scale(2.4); } }
+  @keyframes handIn { from { transform: translate(280px, 160px); } to { transform: none; } }
+  @keyframes tap { 0%, 100% { transform: none; } 50% { transform: scale(.82); } }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+  }
+  @keyframes glow { 0%, 100% { opacity: 0; } 50% { opacity: .55; } }
+  /* Hops up the staircase: rise eases out, fall eases in, short rest on each step. */
+  @keyframes climb {
+    0%  { transform: translate(0, 0); animation-timing-function: ease-out; }
+    10% { transform: translate(55px, -78px); animation-timing-function: ease-in; }
+    20%, 25% { transform: translate(110px, -50px); animation-timing-function: ease-out; }
+    35% { transform: translate(165px, -128px); animation-timing-function: ease-in; }
+    45%, 50% { transform: translate(220px, -100px); animation-timing-function: ease-out; }
+    60% { transform: translate(275px, -178px); animation-timing-function: ease-in; }
+    70%, 75% { transform: translate(330px, -150px); animation-timing-function: ease-out; }
+    85% { transform: translate(385px, -228px); animation-timing-function: ease-in; }
+    95%, 100% { transform: translate(440px, -200px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scene.on, .scene.on * {
+      animation-duration: 1ms !important;
+      animation-delay: 0s !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+</style>
+</head>
+<body>
+<main class="player" aria-roledescription="carousel" aria-label="What Matific can do for kids">
+  <div class="stage">
+
+    <!-- 1. Math becomes play -->
+    <section class="scene" aria-roledescription="slide" aria-label="1 of 6">
+      <svg viewBox="0 0 800 450" role="img" aria-label="A friendly character counts five apples as they drop onto the grass.">
+        <rect class="sky" width="800" height="450"/>
+        <g style="animation: drift 9s ease-in-out infinite alternate">
+          <g class="cloud"><ellipse cx="140" cy="80" rx="52" ry="22"/><ellipse cx="175" cy="66" rx="36" ry="24"/><ellipse cx="110" cy="70" rx="28" ry="18"/></g>
+          <g class="cloud"><ellipse cx="420" cy="56" rx="44" ry="18"/><ellipse cx="448" cy="44" rx="30" ry="20"/></g>
+        </g>
+        <rect class="grass" y="380" width="800" height="70"/>
+        <rect class="grass-dark" y="380" width="800" height="8"/>
+        <!-- tree -->
+        <rect x="642" y="200" width="40" height="182" rx="8" fill="var(--trunk)"/>
+        <circle cx="662" cy="168" r="88" fill="var(--leaf)"/>
+        <circle cx="600" cy="205" r="56" fill="var(--leaf)"/>
+        <circle cx="726" cy="205" r="56" fill="var(--leaf)"/>
+        <circle cx="630" cy="150" r="12" fill="var(--apple)"/>
+        <circle cx="700" cy="190" r="12" fill="var(--apple)"/>
+        <circle cx="668" cy="120" r="12" fill="var(--apple)"/>
+
+        <!-- five falling apples, each followed by its count -->
+        <g id="apples"></g>
+
+        <text class="t t-big a" x="320" y="150" style="animation: pop .6s 3.6s both">5 apples!</text>
+
+        <g transform="translate(110 382)">
+          <g style="animation: enterL .9s cubic-bezier(.2,.9,.3,1.2) both">
+            <g class="a" style="transform-origin: 50% 100%; animation: jump .7s 3.6s both">
+              <g data-critter></g>
+            </g>
+          </g>
+        </g>
+      </svg>
+      <div class="caption">
+        <h2>Math becomes play</h2>
+        <p>Colorful, game-based activities turn practice into something kids actually want to do.</p>
+      </div>
+    </section>
+
+    <!-- 2. Learn by doing -->
+    <section class="scene" aria-roledescription="slide" aria-label="2 of 6">
+      <svg viewBox="0 0 800 450" role="img" aria-label="Three blue blocks and four orange blocks slide together to show that three plus four equals seven.">
+        <rect class="sky" width="800" height="450"/>
+        <rect y="340" width="800" height="110" fill="var(--table)"/>
+
+        <text class="t t-mid a" x="230" y="268" style="animation: pop .45s .3s both, fadeOut .3s 1.5s forwards">3</text>
+        <text class="t t-mid a" x="537" y="268" style="animation: pop .45s .7s both, fadeOut .3s 1.5s forwards">4</text>
+        <text class="t t-big a" x="370" y="334" style="animation: pop .45s 1.1s both, fadeOut .3s 1.5s forwards">+</text>
+
+        <g style="--dx: 57px; animation: slideX .9s 1.6s cubic-bezier(.5,0,.2,1.15) both" id="blocksA"></g>
+        <g style="--dx: -58px; animation: slideX .9s 1.6s cubic-bezier(.5,0,.2,1.15) both" id="blocksB"></g>
+
+        <text class="t t-big a" x="400" y="170" style="animation: pop .6s 3.5s both">3 + 4 = <tspan fill="var(--accent)">7</tspan></text>
+        <g transform="translate(400 150)" id="sparkles2"></g>
+      </svg>
+      <div class="caption">
+        <h2>Learn by doing</h2>
+        <p>Kids move, build and explore, so ideas like addition make sense, not just the answers.</p>
+      </div>
+    </section>
+
+    <!-- 3. Just the right challenge -->
+    <section class="scene" aria-roledescription="slide" aria-label="3 of 6">
+      <svg viewBox="0 0 800 450" role="img" aria-label="The character hops up a staircase of skills, from counting to puzzles, one step at a time.">
+        <rect class="sky" width="800" height="450"/>
+        <rect class="grass" y="380" width="800" height="70"/>
+        <g id="steps"></g>
+
+        <g transform="translate(670 130)" class="a" style="transform-origin: 0 100%; animation: pop .5s 4.3s both">
+          <rect x="-2" y="-70" width="4" height="70" fill="var(--ink)"/>
+          <path d="M2 -70 L46 -56 L2 -42 Z" fill="var(--accent-2)"/>
+        </g>
+
+        <g transform="translate(205 330)">
+          <g style="animation: climb 3.6s .6s linear both">
+            <g data-critter></g>
+          </g>
+        </g>
+      </svg>
+      <div class="caption">
+        <h2>Just the right challenge</h2>
+        <p>Activities build step by step, so every child moves forward at their own pace.</p>
+      </div>
+    </section>
+
+    <!-- 4. Instant feedback -->
+    <section class="scene" aria-roledescription="slide" aria-label="4 of 6">
+      <svg viewBox="0 0 800 450" role="img" aria-label="A child taps the answer 12 for six times two, it turns green and stars burst out.">
+        <rect class="sky" width="800" height="450"/>
+        <g class="a" style="animation: pop .5s .1s both">
+          <rect x="200" y="50" width="400" height="120" rx="24" fill="var(--panel)"/>
+          <text class="t t-big" x="345" y="130">6 × 2 =</text>
+        </g>
+        <text class="t t-big a" x="482" y="130" fill="var(--accent)" style="animation: pop .5s .3s both, fadeOut .2s 2.1s forwards">?</text>
+        <text class="t t-big a" x="495" y="130" style="fill: var(--good); animation: pop .5s 2.2s both">12</text>
+        <path d="M548 104 l12 14 l24 -30" pathLength="100" fill="none" stroke="var(--good)" stroke-width="8"
+              stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="100"
+              style="animation: draw .45s 2.5s both"/>
+
+        <g id="answers"></g>
+
+        <g transform="translate(400 280)">
+          <circle r="50" fill="none" stroke="var(--good)" stroke-width="6" class="a" style="animation: ripple .7s 1.9s both"/>
+          <g id="burst4"></g>
+        </g>
+
+        <!-- pointer, tip at the "12" bubble -->
+        <g transform="translate(404 288)">
+          <g style="animation: handIn 1s .8s cubic-bezier(.3,.8,.3,1) both">
+            <g class="a" style="transform-origin: 0 0; animation: tap .3s 1.8s both">
+              <path d="M0 0 L0 40 L11 30 L19 47 L27 43 L19 27 L33 27 Z" fill="#fff" stroke="#24204a" stroke-width="3" stroke-linejoin="round"/>
+            </g>
+          </g>
+        </g>
+
+        <text class="t t-mid a" x="400" y="410" style="animation: pop .5s 3s both">Great job!</text>
+      </svg>
+      <div class="caption">
+        <h2>Instant, friendly feedback</h2>
+        <p>Kids know right away how they did, and get a cheer when they nail it.</p>
+      </div>
+    </section>
+
+    <!-- 5. Progress you can see -->
+    <section class="scene" aria-roledescription="slide" aria-label="5 of 6">
+      <svg viewBox="0 0 800 450" role="img" aria-label="A weekly progress chart grows day by day and a level-up badge appears.">
+        <rect class="sky" width="800" height="450"/>
+        <g class="a" style="animation: pop .5s .1s both">
+          <rect x="150" y="55" width="500" height="330" rx="24" fill="var(--panel)"/>
+          <text class="t" x="180" y="100" style="text-anchor: start; font-size: 24px; font-weight: 600">This week</text>
+          <line x1="185" x2="615" y1="330" y2="330" stroke="var(--grid)" stroke-width="3"/>
+        </g>
+        <g id="bars"></g>
+        <polyline id="trend" fill="none" stroke="var(--accent-2)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"
+                  pathLength="100" stroke-dasharray="100" style="animation: draw .9s 2s both"/>
+
+        <g transform="translate(690 112)">
+          <g class="a" style="animation: pop .6s 3s both">
+            <g class="a" style="animation: wiggle .5s 3.7s 2 both">
+              <circle r="48" fill="var(--accent-2)"/>
+              <circle r="38" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="6 6"/>
+              <polygon fill="#fff" points="0,-22 5.3,-7.3 20.9,-6.8 8.6,2.8 12.9,17.8 0,9 -12.9,17.8 -8.6,2.8 -20.9,-6.8 -5.3,-7.3"/>
+            </g>
+          </g>
+          <text class="t t-sm a" y="76" style="animation: fadeUp .4s 3.4s both">Level up!</text>
+        </g>
+      </svg>
+      <div class="caption">
+        <h2>Progress you can see</h2>
+        <p>Teachers and parents can follow each child's growth over time.</p>
+      </div>
+    </section>
+
+    <!-- 6. Outro -->
+    <section class="scene" aria-roledescription="slide" aria-label="6 of 6">
+      <div class="outro">
+        <svg viewBox="-50 -90 100 100" aria-hidden="true">
+          <g class="a" style="transform-origin: 50% 100%; animation: jump .7s 1.6s both"><g data-critter></g></g>
+        </svg>
+        <h1 class="wordmark" aria-label="Matific"></h1>
+        <p class="tagline">Math they'll love to play.</p>
+        <div class="pills">
+          <span class="pill" style="animation-delay: 1.5s">Play</span>
+          <span class="pill" style="animation-delay: 1.65s">Explore</span>
+          <span class="pill" style="animation-delay: 1.8s">Grow</span>
+          <span class="pill" style="animation-delay: 1.95s">Shine</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="prev" aria-label="Previous scene">
+      <svg viewBox="0 0 24 24"><path d="M15.5 4.5 8 12l7.5 7.5-1.8 1.8L4.4 12l9.3-9.3z"/></svg>
+    </button>
+    <button class="btn primary" id="play" aria-label="Pause">
+      <svg viewBox="0 0 24 24"><path id="playIcon" d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+    </button>
+    <button class="btn" id="next" aria-label="Next scene">
+      <svg viewBox="0 0 24 24"><path d="M8.5 4.5 16 12l-7.5 7.5 1.8 1.8 9.3-9.3-9.3-9.3z"/></svg>
+    </button>
+    <div class="track">
+      <div class="bar" aria-hidden="true"><i id="progress"></i></div>
+      <div class="dots" id="dots"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const STAR = '0,-22 5.3,-7.3 20.9,-6.8 8.6,2.8 12.9,17.8 0,9 -12.9,17.8 -8.6,2.8 -20.9,-6.8 -5.3,-7.3';
+  const CRITTER = `
+    <g class="bob">
+      <ellipse cx="-14" cy="-4" rx="11" ry="6" class="c-foot"/>
+      <ellipse cx="14" cy="-4" rx="11" ry="6" class="c-foot"/>
+      <circle cy="-36" r="32" class="c-body"/>
+      <ellipse cy="-24" rx="18" ry="12" class="c-belly"/>
+      <path d="M-6 -66 Q0 -82 8 -70" class="c-tuft"/>
+      <g class="eyes">
+        <circle cx="-11" cy="-44" r="8" fill="#fff"/><circle cx="11" cy="-44" r="8" fill="#fff"/>
+        <circle cx="-9" cy="-43" r="4" class="c-pupil"/><circle cx="13" cy="-43" r="4" class="c-pupil"/>
+      </g>
+      <path d="M-9 -31 Q0 -23 9 -31" class="c-smile"/>
+    </g>`;
+
+  const el = (tag, attrs = {}, html = '') => {
+    const node = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+    if (html) node.innerHTML = html;
+    return node;
+  };
+
+  document.querySelectorAll('[data-critter]').forEach(g => { g.innerHTML = CRITTER; });
+
+  // Scene 1: apples drop one at a time, each followed by its number.
+  const apples = document.getElementById('apples');
+  for (let i = 0; i < 5; i++) {
+    const x = 200 + i * 62, t = 0.7 + i * 0.5;
+    const outer = el('g', { transform: `translate(${x} 362)` });
+    const fall = el('g', { style: `animation: drop .8s ${t}s both` }, `
+      <circle r="20" fill="var(--apple)"/>
+      <rect x="-2" y="-27" width="4" height="10" rx="2" fill="var(--trunk)"/>
+      <ellipse cx="8" cy="-22" rx="8" ry="4" fill="var(--leaf)" transform="rotate(-25 8 -22)"/>
+      <ellipse cx="-7" cy="-6" rx="5" ry="7" fill="#fff" opacity=".35"/>`);
+    outer.append(fall);
+    outer.append(el('text', { class: 't t-mid a', y: -46, style: `animation: pop .45s ${t + .45}s both` }, String(i + 1)));
+    apples.append(outer);
+  }
+
+  // Scene 2: 3 + 4 blocks that number themselves once they meet.
+  const block = (x, color, n) => el('g', {}, `
+    <rect x="${x}" y="290" width="50" height="50" rx="10" fill="${color}"/>
+    <rect x="${x}" y="290" width="50" height="12" rx="6" fill="#fff" opacity=".25"/>
+    <text class="t t-white a" x="${x + 25}" y="324" style="font-size: 24px; font-weight: 700; animation: pop .35s ${2.6 + (n - 1) * 0.12}s both">${n}</text>`);
+  const blocksA = document.getElementById('blocksA');
+  const blocksB = document.getElementById('blocksB');
+  [150, 205, 260].forEach((x, i) => blocksA.append(block(x, 'var(--block-a)', i + 1)));
+  [430, 485, 540, 595].forEach((x, i) => blocksB.append(block(x, 'var(--block-b)', i + 4)));
+
+  const burst = (host, delay, dist, size) => {
+    for (let i = 0; i < 8; i++) {
+      const ang = (i / 8) * Math.PI * 2;
+      const g = el('g', {
+        class: 'a',
+        style: `--tx: ${Math.round(Math.cos(ang) * dist)}px; --ty: ${Math.round(Math.sin(ang) * dist * .7)}px;` +
+               `animation: burst .9s ${delay + (i % 2) * .08}s ease-out both`
+      });
+      g.append(el('polygon', { points: STAR, transform: `scale(${size})`, fill: i % 2 ? 'var(--accent-2)' : 'var(--accent)' }));
+      host.append(g);
+    }
+  };
+  burst(document.getElementById('sparkles2'), 3.8, 210, .55);
+  burst(document.getElementById('burst4'), 2.1, 130, .7);
+
+  // Scene 3: staircase of skills; each step label pops as the critter lands on it.
+  const steps = document.getElementById('steps');
+  const skills = ['Count', 'Add', 'Multiply', 'Fractions', 'Puzzles'];
+  const landAt = [0.3, 1.32, 2.22, 3.12, 4.02];
+  skills.forEach((name, i) => {
+    const x = 150 + i * 110, top = 330 - i * 50;
+    steps.append(el('rect', { x, y: top, width: 110, height: 380 - top, fill: `var(--step-${i})` }));
+    steps.append(el('rect', { x, y: top, width: 110, height: 380 - top, fill: '#fff', class: 'a',
+      style: `animation: glow .6s ${landAt[i]}s both` }));
+    steps.append(el('text', { class: 't t-sm t-white a', x: x + 55, y: top + 32,
+      style: `animation: pop .4s ${landAt[i]}s both` }, name));
+  });
+
+  // Scene 4: three answer bubbles; the middle one is tapped and turns green.
+  const answers = document.getElementById('answers');
+  [10, 12, 14].forEach((n, i) => {
+    const g = el('g', { transform: `translate(${250 + i * 150} 280)` });
+    g.append(el('g', { class: 'a', style: `animation: pop .45s ${.5 + i * .12}s both` }, `
+      <circle r="50" fill="var(--panel)" stroke="var(--grid)" stroke-width="4"/>
+      <text class="t t-mid" y="11">${n}</text>
+      ${n === 12 ? `
+      <circle r="50" fill="var(--good)" class="a" style="animation: pop .4s 2s both"/>
+      <text class="t t-mid t-white a" y="11" style="animation: fadeIn .2s 2.1s both">12</text>` : ''}`));
+    answers.append(g);
+  });
+
+  // Scene 5: bars grow Mon–Fri, then a trend line traces their tops.
+  const bars = document.getElementById('bars');
+  const heights = [70, 100, 130, 175, 215];
+  const pts = [];
+  ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].forEach((d, i) => {
+    const x = 210 + i * 80, h = heights[i];
+    bars.append(el('rect', { x, y: 330 - h, width: 48, height: h, rx: 10, fill: `var(--step-${i})`, class: 'a',
+      style: `transform-origin: 50% 100%; animation: grow .6s ${.5 + i * .25}s cubic-bezier(.3,1.4,.5,1) both` }));
+    bars.append(el('text', { class: 't t-sm', x: x + 24, y: 360, style: 'fill: var(--muted)' }, d));
+    pts.push(`${x + 24},${330 - h - 18}`);
+  });
+  document.getElementById('trend').setAttribute('points', pts.join(' '));
+
+  // Outro wordmark letters.
+  const word = document.querySelector('.wordmark');
+  [...'Matific'].forEach((ch, i) => {
+    const s = document.createElement('span');
+    s.textContent = ch;
+    s.setAttribute('aria-hidden', 'true');
+    s.style.animationDelay = `${.2 + i * .08}s`;
+    word.append(s);
+  });
+
+  // Player.
+  const scenes = [...document.querySelectorAll('.scene')];
+  const DURATIONS = [5.5, 5.5, 5.5, 5, 5.5, 5];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const stage = document.querySelector('.stage');
+  const progress = document.getElementById('progress');
+  const playBtn = document.getElementById('play');
+  const playIcon = document.getElementById('playIcon');
+  const dotsHost = document.getElementById('dots');
+  const PAUSE_D = 'M6 4h4v16H6zM14 4h4v16h-4z';
+  const PLAY_D = 'M7 4v16l13-8z';
+  const REPLAY_D = 'M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z';
+
+  let idx = 0, elapsed = 0, playing = !reduce, last = 0;
+
+  const dots = scenes.map((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'dot';
+    b.setAttribute('aria-label', `Go to scene ${i + 1}`);
+    b.addEventListener('click', () => show(i));
+    dotsHost.append(b);
+    return b;
+  });
+
+  function setPlaying(on) {
+    playing = on;
+    const atEnd = !on && idx === scenes.length - 1 && elapsed >= DURATIONS[idx];
+    playIcon.setAttribute('d', on ? PAUSE_D : atEnd ? REPLAY_D : PLAY_D);
+    playBtn.setAttribute('aria-label', on ? 'Pause' : atEnd ? 'Replay' : 'Play');
+    stage.classList.toggle('paused', !on && !reduce);
+  }
+
+  function show(i) {
+    idx = (i + scenes.length) % scenes.length;
+    elapsed = 0;
+    scenes.forEach(s => s.classList.remove('on'));
+    void stage.offsetWidth; // restart CSS animations
+    scenes[idx].classList.add('on');
+    dots.forEach((d, j) => d.setAttribute('aria-current', j === idx));
+    setPlaying(playing);
+  }
+
+  function tick(now) {
+    const dt = Math.min((now - (last || now)) / 1000, .1);
+    last = now;
+    if (playing) {
+      elapsed += dt;
+      if (elapsed >= DURATIONS[idx]) {
+        if (idx < scenes.length - 1) show(idx + 1);
+        else { elapsed = DURATIONS[idx]; setPlaying(false); }
+      }
+    }
+    progress.style.width = `${Math.min(elapsed / DURATIONS[idx], 1) * 100}%`;
+    requestAnimationFrame(tick);
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (!playing && idx === scenes.length - 1 && elapsed >= DURATIONS[idx]) { playing = true; show(0); return; }
+    setPlaying(!playing);
+  });
+  document.getElementById('prev').addEventListener('click', () => show(idx - 1));
+  document.getElementById('next').addEventListener('click', () => show(idx + 1));
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('button') && (e.key === ' ' || e.key === 'Enter')) return;
+    if (e.key === 'ArrowRight') show(idx + 1);
+    else if (e.key === 'ArrowLeft') show(idx - 1);
+    else if (e.key === ' ') { e.preventDefault(); playBtn.click(); }
+  });
+
+  show(0);
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
